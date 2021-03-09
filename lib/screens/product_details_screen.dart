@@ -36,7 +36,7 @@ class ProductDetailsScreen extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            Container(
+            Container( 
               padding: EdgeInsets.symmetric(horizontal: 10),
               width: double.infinity,
               child: Text(

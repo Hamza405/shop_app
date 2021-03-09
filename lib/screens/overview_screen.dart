@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/model/product_model.dart';
 import 'package:max_cours_shop_app/providers/cart_provider.dart';
+import 'package:max_cours_shop_app/widgets/app_drawer.dart';
 import 'package:max_cours_shop_app/widgets/badge.dart';
 import 'package:max_cours_shop_app/widgets/grid_view.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +57,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
         ],
       ),
       body: MyGridView(_showFavorite),
+      drawer: AppDrawer(),
     );
   }
 }
