@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/model/order_model.dart';
-// import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
 
 
 class OrderItem extends StatefulWidget {
@@ -24,8 +24,8 @@ class _OrderItemState extends State<OrderItem> {
         children: <Widget>[
           ListTile(
             title: Text('\$${widget.order.amount}'),
-            subtitle: Text('22/3/2020 6:23'
-              // DateFormat('dd MM yyyy hh:mm').format(order.dateTime),
+            subtitle: Text(
+              DateFormat('dd MM yyyy hh:mm').format(widget.order.dateTime),
             ),
             trailing: IconButton(
               icon: Icon( expanded ? Icons.expand_less : Icons.expand_more),
