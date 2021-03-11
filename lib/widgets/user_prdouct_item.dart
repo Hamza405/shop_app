@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/providers/products_provider.dart';
 import 'package:max_cours_shop_app/screens/edait_product_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart'  as http;
 
 class UserProductItem extends StatelessWidget {
   final String id;
