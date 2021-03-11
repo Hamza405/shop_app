@@ -10,6 +10,7 @@ class UserProductItem extends StatelessWidget {
   final String imageUrl;
 
   UserProductItem(this.id,this.title, this.imageUrl);
+  
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +32,12 @@ class UserProductItem extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.delete),
-              onPressed: () {
-                Provider.of<ProductsProvider>(context,listen: false).deleteProduct(id);
+              onPressed: () async {
+                try{
+                await Provider.of<ProductsProvider>(context,listen: false).deleteProduct(id);
+                }catch(e){
+                  
+                }
               },
               color: Theme.of(context).errorColor,
             ),

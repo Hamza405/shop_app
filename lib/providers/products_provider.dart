@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/model/product_model.dart';
 import 'package:http/http.dart' as http;
@@ -64,18 +66,44 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void editproduct(String id, ProductModel newProduct) {
+  Future<void> editproduct(String id, ProductModel newProduct) async {
     final productIndex = _items.indexWhere((element) => element.id == id);
     if (productIndex >= 0) {
+      Uri url =
+          Uri.parse('https://chat-room-2a579.firebaseio.com/products/$id.json');
+      try{   
+      await http.patch(url,
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'price': newProduct.price,
+            'imageUrl': newProduct.imageUrl,
+          }));
       _items[productIndex] = newProduct;
       notifyListeners();
+      }catch(e){
+        throw e;
+      }
     } else {
-      print('..../');
+      return 'asd';
     }
   }
 
-  void deleteProduct(String id) {
+ 
+  
+  Future<void> deleteProduct(String id) async {
+    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products/$id.json');
+    final productIndex = _items.indexWhere((element) => element.id == id);
+    var existingProductIndex = _items[productIndex];
     _items.removeWhere((element) => element.id == id);
     notifyListeners();
+    final response = await http.delete(url);
+
+      if(response.statusCode >= 400){
+         _items.insert(productIndex, existingProductIndex);
+      notifyListeners();
+        throw HttpException('could not delete product!');
+      }
+    existingProductIndex = null;
   }
 }

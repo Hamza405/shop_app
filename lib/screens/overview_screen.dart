@@ -46,9 +46,9 @@ class _OverviewScreenState extends State<OverviewScreen> {
                   ],
                 ));
       }finally{
- setState(() {
+ 
           _isLoading=false;
-        });
+       
       }
     }
     _isInit = false;

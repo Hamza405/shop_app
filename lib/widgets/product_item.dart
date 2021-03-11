@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/model/product_model.dart';
 import 'package:max_cours_shop_app/providers/cart_provider.dart';
+import 'package:max_cours_shop_app/providers/products_provider.dart';
 import 'package:max_cours_shop_app/screens/product_details_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +10,7 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<ProductModel>(context,listen: false);
     final cart = Provider.of<CartProvider>(context,listen: false);
+    final s =Scaffold.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
           child: GridTile(
@@ -30,8 +32,16 @@ class ProductItem extends StatelessWidget {
           leading: Consumer<ProductModel>(
             builder: (context, product,child ) => IconButton(
               icon: Icon(product.isFavorite?Icons.favorite : Icons.favorite_border),
-              onPressed: () {
-                product.toggleFavoriteStatus();
+              onPressed: () async{
+                try{
+               await Provider.of<ProductModel>(context,listen: false).toggleFavoriteStatus();
+               
+                }catch( e){
+                  print(e);
+                  s.showSnackBar(SnackBar(
+                    content: Text(e.toString()),
+                  ));
+                }
               },
               color: Theme.of(context).accentColor,
             ),
