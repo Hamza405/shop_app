@@ -27,7 +27,18 @@ class _OrderItemState extends State<OrderItem> {
             subtitle: Text(
               DateFormat('dd MM yyyy hh:mm').format(widget.order.dateTime),
             ),
-            trailing: IconButton(
+            trailing: Container(
+        width: 100,
+        child: Row(
+          children: <Widget>[
+            // IconButton(
+            //   icon: Icon(Icons.delete),
+            //   onPressed: () {
+            //     Navigator.of(context).pushNamed(EditProductScreen.routeName,arguments: id);
+            //   },
+            //   color: Theme.of(context).primaryColor,
+            // ),
+             IconButton(
               icon: Icon( expanded ? Icons.expand_less : Icons.expand_more),
               onPressed: () {
                 setState(() {
@@ -35,6 +46,9 @@ class _OrderItemState extends State<OrderItem> {
                 });
               },
             ),
+          ],
+        ),
+      ),
           ),
           if(expanded)
             Container(
