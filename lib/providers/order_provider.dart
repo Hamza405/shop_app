@@ -35,6 +35,7 @@ class Orderprovider with ChangeNotifier{
     });
     _orders = fetchedOrders;
     notifyListeners();
+    
     }catch(e){
       throw HttpException('Something wrong!').toString();
     }

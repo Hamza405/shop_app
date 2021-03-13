@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/providers/cart_provider.dart';
+import 'package:max_cours_shop_app/providers/order_provider.dart';
 import 'package:max_cours_shop_app/providers/products_provider.dart';
 import 'package:max_cours_shop_app/widgets/app_drawer.dart';
 import 'package:max_cours_shop_app/widgets/badge.dart';
@@ -17,44 +18,44 @@ class OverviewScreen extends StatefulWidget {
 
 class _OverviewScreenState extends State<OverviewScreen> {
   bool _showFavorite = false;
-  var _isInit = true;
-  var _isLoading = false;
+  // var _isInit = true;
+  // var _isLoading = false;
 
-   @override
-  void didChangeDependencies()async {
+  //  @override
+  // void didChangeDependencies()async {
    
-    if(_isInit){
-      try{
-         setState(() {
-          _isLoading=true;
-        });
-       await Provider.of<ProductsProvider>(context).fetchProducts();
+  //   if(_isInit){
+  //     try{
+  //        setState(() {
+  //         _isLoading=true;
+  //       });
+  //      await Provider.of<ProductsProvider>(context).fetchProducts();
         
-      }catch(e){
-         await showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-                  title: Text('An error occurred!'),
-                  content: Text(e.toString()),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Okay'),
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                      },
-                    ),
-                  ],
-                ));
-      }finally{
+  //     }catch(e){
+  //        await showDialog(
+  //           context: context,
+  //           builder: (ctx) => AlertDialog(
+  //                 title: Text('An error occurred!'),
+  //                 content: Text(e.toString()),
+  //                 actions: <Widget>[
+  //                   FlatButton(
+  //                     child: Text('Okay'),
+  //                     onPressed: () {
+  //                       Navigator.of(ctx).pop();
+  //                     },
+  //                   ),
+  //                 ],
+  //               ));
+  //     }finally{
  
-          _isLoading=false;
+  //         _isLoading=false;
        
-      }
-    }
-    _isInit = false;
+  //     }
+  //   }
+  //   _isInit = false;
     
-    super.didChangeDependencies();
-  }
+  //   super.didChangeDependencies();
+  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +95,20 @@ class _OverviewScreenState extends State<OverviewScreen> {
           )
         ],
       ),
-      body:_isLoading?Center(child:CircularProgressIndicator()): MyGridView(_showFavorite),
+      body:FutureBuilder(
+        future: Provider.of<ProductsProvider>(context,listen:false).fetchProducts(),
+        builder: (ctx,dataSnapShot){
+          if(dataSnapShot.connectionState == ConnectionState.waiting){
+            return Center(child:CircularProgressIndicator());
+          }
+          if(dataSnapShot.error !=null){
+            return Center(child:Text('Something wrong!'));
+          }
+          return Consumer<ProductsProvider>(
+          builder: (ctx,productsData,child)=>MyGridView(_showFavorite),
+        );
+        }
+      ),
       drawer: AppDrawer(),
     );
   }

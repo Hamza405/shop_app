@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/providers/order_provider.dart';
 import 'package:max_cours_shop_app/providers/products_provider.dart';
+import 'package:max_cours_shop_app/screens/4.1%20auth_screen.dart';
 import 'package:max_cours_shop_app/screens/edait_product_screen.dart';
 import 'package:max_cours_shop_app/screens/order_screen.dart';
 import 'package:max_cours_shop_app/screens/overview_screen.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.green,
             accentColor: Colors.red,
             fontFamily: 'Lato'),
-        home: OverviewScreen(),
+        home: AuthScreen(),
         routes: {
           ProductDetailsScreen.routName: (context) => ProductDetailsScreen(),
           CartScreen.routeName: (context) => CartScreen(),
