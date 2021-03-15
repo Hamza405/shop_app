@@ -8,7 +8,7 @@ import 'package:max_cours_shop_app/screens/overview_screen.dart';
 import 'package:max_cours_shop_app/screens/product_details_screen.dart';
 import 'package:max_cours_shop_app/screens/user_producr_screen.dart';
 import 'package:provider/provider.dart';
-
+import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
 import 'screens/cart_screen.dart';
 
@@ -23,31 +23,43 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => ProductsProvider(),
+          create: (context) => AuthProvider(),
+        ),
+
+        // previousProductProvider.items == null
+        //     ? []
+        //     : previousProductProvider.items
+        ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
+          update: (context, auth, previousProductProvider) =>
+              ProductsProvider(auth.token, [],auth.userId),
         ),
         ChangeNotifierProvider(
           create: (context) => CartProvider(),
         ),
-        ChangeNotifierProvider(
-          create: (context) => Orderprovider(),
+        ChangeNotifierProxyProvider<AuthProvider, Orderprovider>(
+          update: (context, auth, previousOrderProvider) =>
+              Orderprovider(auth.token, []),
         )
       ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            primarySwatch: Colors.green,
-            accentColor: Colors.red,
-            fontFamily: 'Lato'),
-        home: AuthScreen(),
-        routes: {
-          ProductDetailsScreen.routName: (context) => ProductDetailsScreen(),
-          CartScreen.routeName: (context) => CartScreen(),
-          OrdersScreen.routName:(context) => OrdersScreen(),
-          UserProductsScreen.routeName: (context) => UserProductsScreen(),
-          EditProductScreen.routeName  : (context) => EditProductScreen()
-        },
-      ),
+      child: Consumer<AuthProvider>(
+          builder: (ctx, auth, _) => MaterialApp(
+                title: 'Flutter Demo',
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData(
+                    primarySwatch: Colors.green,
+                    accentColor: Colors.red,
+                    fontFamily: 'Lato'),
+                home: auth.isAuth ? OverviewScreen() : AuthScreen(),
+                routes: {
+                  ProductDetailsScreen.routName: (context) =>
+                      ProductDetailsScreen(),
+                  CartScreen.routeName: (context) => CartScreen(),
+                  OrdersScreen.routName: (context) => OrdersScreen(),
+                  UserProductsScreen.routeName: (context) =>
+                      UserProductsScreen(),
+                  EditProductScreen.routeName: (context) => EditProductScreen()
+                },
+              )),
     );
   }
 }

@@ -9,13 +9,15 @@ import 'package:http/http.dart' as http;
 
 class Orderprovider with ChangeNotifier{
     List<OrderModel> _orders = [];
+    final String token;
+    Orderprovider(this.token,this._orders);
 
   List<OrderModel> get orders {
     return [..._orders];
   }
 
   Future<void> fetchOrders()async{
-    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/orders.json');
+    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/orders.json?auth=$token');
     try{
     final response = await http.get(url);
     if(response.statusCode >= 400){
@@ -42,7 +44,7 @@ class Orderprovider with ChangeNotifier{
   }
 
   Future<void> addOrder(List<CartModel> cartProducts, double total) async {
-    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/orders.json');
+    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/orders.json?auth=$token');
     final timeStamp = DateTime.now();
     try{
     final response = await http.post(url,body:json.encode({

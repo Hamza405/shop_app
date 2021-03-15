@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/model/product_model.dart';
+import 'package:max_cours_shop_app/providers/auth_provider.dart';
 import 'package:max_cours_shop_app/providers/cart_provider.dart';
-import 'package:max_cours_shop_app/providers/products_provider.dart';
 import 'package:max_cours_shop_app/screens/product_details_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +11,8 @@ class ProductItem extends StatelessWidget {
     final product = Provider.of<ProductModel>(context,listen: false);
     final cart = Provider.of<CartProvider>(context,listen: false);
     final s =Scaffold.of(context);
+    final _authData = Provider.of<AuthProvider>(context);
+    
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
           child: GridTile(
@@ -34,7 +36,7 @@ class ProductItem extends StatelessWidget {
               icon: Icon(product.isFavorite?Icons.favorite : Icons.favorite_border),
               onPressed: () async{
                 try{
-               await Provider.of<ProductModel>(context,listen: false).toggleFavoriteStatus();
+               await Provider.of<ProductModel>(context,listen: false).toggleFavoriteStatus(_authData.token,_authData.userId,);
                
                 }catch( e){
                   print(e);

@@ -9,6 +9,10 @@ class ProductsProvider with ChangeNotifier {
   List<ProductModel> _items = [];
   List<ProductModel> get items => [..._items];
 
+  final String token;
+  final String userId;
+  ProductsProvider(this.token,this._items,this.userId);
+
   List<ProductModel> get favoriteItem =>
       [..._items].where((element) => element.isFavorite).toList();
 
@@ -17,10 +21,16 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchProducts() async {
-    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products.json');
+    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products.json?auth=$token');
     try {
       final response = await http.get(url);
       final extractData = json.decode(response.body) as Map<String, dynamic>;
+      if(extractData == null){
+        return;
+      }
+      Uri url1 = Uri.parse('https://chat-room-2a579.firebaseio.com/userFavorite/$userId.json?auth=$token');
+      final favoriteResponse = await http.get(url1);
+      final favoriteData = json.decode(favoriteResponse.body);
       final List<ProductModel> loadedProduct = [];
       extractData.forEach((key, value) {
         loadedProduct.add(ProductModel(
@@ -29,7 +39,8 @@ class ProductsProvider with ChangeNotifier {
             description: value['description'],
             price: value['price'],
             imageUrl: value['imageUrl'],
-            isFavorite: value['isFavorite']));
+            isFavorite: favoriteData == null?false: favoriteData[key]?? false,
+            ));
       });
       _items = loadedProduct;
       notifyListeners();
@@ -39,7 +50,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addproduct(ProductModel product) async {
-    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products.json');
+    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products.json?auth=$token');
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -47,7 +58,6 @@ class ProductsProvider with ChangeNotifier {
             'description': product.description,
             'price': product.price,
             'imageUrl': product.imageUrl,
-            'isFavorite': product.isFavorite
           }));
 
       final newProduct = ProductModel(
@@ -70,7 +80,7 @@ class ProductsProvider with ChangeNotifier {
     final productIndex = _items.indexWhere((element) => element.id == id);
     if (productIndex >= 0) {
       Uri url =
-          Uri.parse('https://chat-room-2a579.firebaseio.com/products/$id.json');
+          Uri.parse('https://chat-room-2a579.firebaseio.com/products/$id.json?auth=$token');
       try{   
       await http.patch(url,
           body: json.encode({
@@ -92,7 +102,7 @@ class ProductsProvider with ChangeNotifier {
  
   
   Future<void> deleteProduct(String id) async {
-    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products/$id.json');
+    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products/$id.json?auth=$token');
     final productIndex = _items.indexWhere((element) => element.id == id);
     var existingProductIndex = _items[productIndex];
     _items.removeWhere((element) => element.id == id);
