@@ -25,6 +25,9 @@ class OrdersScreen extends StatelessWidget {
                 if(dataSnapShot.error !=null){
                   return Center(child:Text('Something wrong try agin!'));
                 }
+                if(dataSnapShot.hasData==null){
+            return Center(child: Text('You dont have any orders!'),);
+          }
               return Consumer<Orderprovider>(builder: (ctx,orderData,child)=> ListView.builder(
                 itemCount: orderData.orders.length,
                 itemBuilder: (ctx, i) => OrderItem(orderData.orders[i]),

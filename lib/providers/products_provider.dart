@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/model/product_model.dart';
 import 'package:http/http.dart' as http;
@@ -20,8 +19,9 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((element) => element.id == id);
   }
 
-  Future<void> fetchProducts() async {
-    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products.json?auth=$token');
+  Future<void> fetchProducts([bool filter = false]) async {
+    final String filters = filter ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    Uri url = Uri.parse('https://chat-room-2a579.firebaseio.com/products.json?auth=$token&$filters');
     try {
       final response = await http.get(url);
       final extractData = json.decode(response.body) as Map<String, dynamic>;
@@ -58,6 +58,7 @@ class ProductsProvider with ChangeNotifier {
             'description': product.description,
             'price': product.price,
             'imageUrl': product.imageUrl,
+            'creatorId':userId
           }));
 
       final newProduct = ProductModel(

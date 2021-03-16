@@ -96,7 +96,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
         ],
       ),
       body:FutureBuilder(
-        future: Provider.of<ProductsProvider>(context,listen:false).fetchProducts(),
+        future: Provider.of<ProductsProvider>(context,listen:false).fetchProducts(false),
         builder: (ctx,dataSnapShot){
           if(dataSnapShot.connectionState == ConnectionState.waiting){
             return Center(child:CircularProgressIndicator());
@@ -104,6 +104,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
           if(dataSnapShot.error !=null){
             return Center(child:Text('Something wrong!'));
           }
+          
           return Consumer<ProductsProvider>(
           builder: (ctx,productsData,child)=>MyGridView(_showFavorite),
         );
