@@ -20,10 +20,14 @@ class ProductItem extends StatelessWidget {
           onTap:() {
             Navigator.of(context).pushNamed(ProductDetailsScreen.routName,arguments: product.id);
           },
-                  child: Image.network(
-            product.imageUrl,
+                  child: Hero(
+                    tag: product.id,
+                                      child: FadeInImage(
+            placeholder: AssetImage('assets/loading.gif'),
+            image: NetworkImage(product.imageUrl),
             fit: BoxFit.cover,
           ),
+                  ),
         ),
         footer: GridTileBar(
           title: Text(

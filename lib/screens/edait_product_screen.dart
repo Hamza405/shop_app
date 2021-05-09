@@ -1,8 +1,11 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:max_cours_shop_app/model/product_model.dart';
 import 'package:max_cours_shop_app/providers/products_provider.dart';
+import 'package:max_cours_shop_app/widgets/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit-product';
@@ -16,6 +19,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isEdit=false;
+  File _imageFile;
+  void _pickedImage(File image) {
+    _imageFile = image;
+  }
+
   var _editproduct =
       ProductModel(id: null, title: '', description: '', price: 0);
   var _initValue = {
@@ -29,8 +38,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void initState() {
-    _imageUrlFocusNode.addListener(_updateImageUrl);
-
     super.initState();
   }
 
@@ -39,14 +46,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (_isInit) {
       final productId = ModalRoute.of(context).settings.arguments as String;
       if (productId != null) {
+        _isEdit=true;
         _editproduct =
             Provider.of<ProductsProvider>(context).findById(productId);
+            
         _initValue = {
           'title': _editproduct.title,
           'price': _editproduct.price.toString(),
           'description': _editproduct.description.toString(),
-          'imageUrl': _editproduct.imageUrl
+          'imageUrl': _editproduct.imageUrl.toString()
         };
+        print(_initValue['imageUrl'].toString());
       }
       _imageUrlController.text = _editproduct.imageUrl;
     }
@@ -56,24 +66,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void dispose() {
-    _imageUrlFocusNode.removeListener(_updateImageUrl);
     _priceFocusNode.dispose();
     _descritpionFocusNode.dispose();
     _imageUrlController.dispose();
     super.dispose();
-  }
-
-  void _updateImageUrl() {
-    if (!_imageUrlFocusNode.hasFocus) {
-      if (!_imageUrlController.text.startsWith('http') &&
-              !_imageUrlController.text.startsWith('https') ||
-          !_imageUrlController.text.endsWith('.png') &&
-              !_imageUrlController.text.endsWith('.jpg') &&
-              !_imageUrlController.text.endsWith('.jpeg')) {
-        return;
-      }
-    }
-    setState(() {});
   }
 
   Future<void> _saveForm() async {
@@ -85,9 +81,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
     setState(() {
       _isLoading = true;
     });
+    if(!_isEdit){
+      final ref = FirebaseStorage.instance
+        .ref()
+        .child('products_images')
+        .child(DateTime.now().toIso8601String() + '.jpg');
+    await ref.putFile(_imageFile);
+    final imageUrl = await ref.getDownloadURL();
+    }
+    
+    _editproduct = ProductModel(
+        id: _editproduct.id,
+        isFavorite: _editproduct.isFavorite,
+        title: _editproduct.description,
+        description: _editproduct.description,
+        price: _editproduct.price,
+        imageUrl: _editproduct.imageUrl);
+        print(_editproduct.imageUrl);
     if (_editproduct.id != null) {
       try {
-       await Provider.of<ProductsProvider>(context,listen: false).editproduct(_editproduct.id, _editproduct);
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .editproduct(_editproduct.id, _editproduct);
       } catch (e) {
         await showDialog(
             context: context,
@@ -242,62 +256,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             imageUrl: _editproduct.imageUrl);
                       },
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                            width: 100,
-                            height: 100,
-                            margin: EdgeInsets.only(top: 8, right: 10),
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(width: 1, color: Colors.grey)),
-                            child: _imageUrlController.text.isEmpty
-                                ? Center(child: Text('Enter the Url'))
-                                : FittedBox(
-                                    child: Image.network(
-                                    _imageUrlController.text.toString(),
-                                    fit: BoxFit.cover,
-                                  ))),
-                        Expanded(
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Enter yout Url image';
-                              }
-                              if (!value.startsWith('http') &&
-                                  !value.startsWith('https')) {
-                                return 'Enter a valid Url';
-                              }
-                              if (!value.endsWith('.png') &&
-                                  !value.endsWith('.jpg') &&
-                                  !value.endsWith('.jpeg')) {
-                                return 'Enter a valid Image Url';
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              labelText: 'Image Url',
-                            ),
-                            textInputAction: TextInputAction.done,
-                            keyboardType: TextInputType.url,
-                            onFieldSubmitted: (_) {
-                              _saveForm();
-                            },
-                            controller: _imageUrlController,
-                            onSaved: (value) {
-                              _editproduct = ProductModel(
-                                  id: _editproduct.id,
-                                  isFavorite: _editproduct.isFavorite,
-                                  title: _editproduct.title,
-                                  description: _editproduct.description,
-                                  price: _editproduct.price,
-                                  imageUrl: _imageUrlController.text);
-                            },
-                          ),
-                        )
-                      ],
-                    )
+                    SizedBox(height: 20,),
+                    UserImagePicker(_pickedImage,_imageUrlController.text,_isEdit)
                   ],
                 ),
               ),
