@@ -12,9 +12,10 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
 import 'screens/cart_screen.dart';
+import 'screens/login_screen.dart';
 import 'screens/splash_screen.dart';
 
-void main()async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
@@ -29,23 +30,18 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AuthProvider>(
           create: (context) => AuthProvider(),
         ),
-
-        // previousProductProvider.items == null
-        //     ? []
-        //     : previousProductProvider.items
-        // ignore: missing_required_param
         ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
+          create: (context) => ProductsProvider(),
           update: (context, auth, previousProductProvider) =>
-              ProductsProvider(auth.token, [],auth.userId),
+              previousProductProvider..update(auth),
         ),
         ChangeNotifierProvider(
           create: (context) => CartProvider(),
         ),
-        // ignore: missing_required_param
         ChangeNotifierProxyProvider<AuthProvider, Orderprovider>(
-          update: (context, auth, previousOrderProvider) =>
-              Orderprovider(auth.token, [],auth.userId),
-        )
+            create: (context) => Orderprovider(),
+            update: (context, auth, previousOrderProvider) =>
+                previousOrderProvider..update(auth))
       ],
       child: Consumer<AuthProvider>(
           builder: (ctx, auth, _) => MaterialApp(
@@ -55,12 +51,17 @@ class MyApp extends StatelessWidget {
                     primarySwatch: Colors.green,
                     accentColor: Colors.red,
                     fontFamily: 'Lato'),
-                home: auth.isAuth ? OverviewScreen() 
-                :FutureBuilder(
-                  future: auth.autoLogin(),
-                  builder: (ctx,dataSnapShot)=>dataSnapShot.connectionState==ConnectionState.waiting?SplashScreen():AuthScreen(),
-                ),
-               
+                    home:LoginScreen(),
+                // home: auth.isAuth
+                //     ? OverviewScreen()
+                //     : FutureBuilder(
+                //         future: auth.autoLogin(),
+                //         builder: (ctx, dataSnapShot) =>
+                //             dataSnapShot.connectionState ==
+                //                     ConnectionState.waiting
+                //                 ? SplashScreen()
+                //                 : AuthScreen(),
+                //       ),
                 routes: {
                   ProductDetailsScreen.routName: (context) =>
                       ProductDetailsScreen(),

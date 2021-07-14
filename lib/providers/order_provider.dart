@@ -7,11 +7,16 @@ import 'package:max_cours_shop_app/model/http_exception.dart';
 import 'package:max_cours_shop_app/model/order_model.dart';
 import 'package:http/http.dart' as http;
 
+import 'auth_provider.dart';
+
 class Orderprovider with ChangeNotifier{
     List<OrderModel> _orders = [];
-    final String token;
-    final String userId;
-    Orderprovider(this.token,this._orders,this.userId);
+     String token;
+     String userId;
+    void update(AuthProvider auth){
+token = auth.token;
+userId = auth.userId;
+    }
 
   List<OrderModel> get orders {
     return [..._orders];

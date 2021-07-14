@@ -1,8 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/model/http_exception.dart';
 import 'package:max_cours_shop_app/providers/auth_provider.dart';
+import 'package:max_cours_shop_app/widgets/image_picker_user_image.dart';
+import 'package:max_cours_shop_app/widgets/overviewheadr.dart';
 import 'package:provider/provider.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'dart:io';
 
 enum AuthMode { Signup, Login }
 
@@ -93,6 +98,13 @@ class AuthCard extends StatefulWidget {
 }
 
 class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin {
+  bool _lockedPassword = true;
+  void _toggle(){
+    setState(() {
+      _lockedPassword = !_lockedPassword;
+    });
+    
+  }
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   Map<String, String> _authData = {
@@ -101,6 +113,10 @@ class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin
     'email': '',
     'password': '',
   };
+  File _userImageFile;
+  void _pickedImage(File image){
+    _userImageFile=image;
+  } 
   var _isLoading = false;
   final _passwordController = TextEditingController();
   // AnimationController  _animationController;
@@ -189,21 +205,30 @@ class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
+      color: Colors.white.withOpacity(0.8),
       child: AnimatedContainer(
         duration: Duration(milliseconds: 250),
         curve: Curves.easeIn,
         
-        height: _authMode == AuthMode.Signup ? 420 : 260,
+        height: _authMode == AuthMode.Signup ? deviceSize.height*0.65 :  deviceSize.height*0.35,
         // height: _heightAnimation.value.height,
         constraints:
-            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 420 : 260),
+            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? deviceSize.height*0.65 :  deviceSize.height*0.35),
         width: deviceSize.width * 0.85,
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Text('Welcome,',textAlign: TextAlign.left,style: TextStyle(fontSize: 25,fontWeight:FontWeight.bold,color:Theme.of(context).primaryColor),),
+                if (_authMode == AuthMode.Signup)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Center(child: UserProfileImagePicker(_pickedImage)),
+                ),
                 if (_authMode == AuthMode.Signup)
                 TextFormField(
                   decoration: InputDecoration(labelText: 'User Name'),
@@ -216,8 +241,9 @@ class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin
                     _authData['userName'] = value;
                   },
                 ),
+                SizedBox(height:5),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'E-Mail'),
+                  decoration: InputDecoration(labelText: 'E-Mail',),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value.isEmpty || !value.contains('@')) {
@@ -228,8 +254,18 @@ class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin
                     _authData['email'] = value;
                   },
                 ),
+                 SizedBox(height:5),
                 if (_authMode == AuthMode.Signup)
                 InternationalPhoneNumberInput(
+                  selectorConfig: SelectorConfig(
+                    selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                    showFlags :true,
+   useEmoji : false,
+                  ),
+                  countrySelectorScrollControlled : true,
+                  searchBoxDecoration:InputDecoration(
+                    hintText: 'Select your Country'
+                  ),
                   inputDecoration: InputDecoration(labelText: 'phone Number'),
                   onSaved: (value){
                     _authData['phoneNumber'] = value.toString().trim();
@@ -240,9 +276,10 @@ class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin
                     }
                   },
                 ),
+                 SizedBox(height:5),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Password'),
-                  obscureText: true,
+                  decoration: InputDecoration(labelText: 'Password',suffixIcon: IconButton(icon:Icon(_lockedPassword?Icons.visibility_off:Icons.visibility),onPressed: _toggle,)),
+                  obscureText: _lockedPassword,
                   controller: _passwordController,
                   validator: (value) {
                     if (value.isEmpty || value.length < 5) {
@@ -253,6 +290,7 @@ class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin
                     _authData['password'] = value;
                   },
                 ),
+                 SizedBox(height:5),
                 if (_authMode == AuthMode.Signup)
                   TextFormField(
                     enabled: _authMode == AuthMode.Signup,
@@ -272,25 +310,29 @@ class _AuthCardState extends State<AuthCard> with SingleTickerProviderStateMixin
                 if (_isLoading)
                   CircularProgressIndicator()
                 else
-                  RaisedButton(
-                    child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
-                    onPressed: _submit,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                  Center(
+                    child: RaisedButton(
+                      child:
+                          Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+                      onPressed: _submit,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                      color: Theme.of(context).primaryColor,
+                      textColor: Theme.of(context).primaryTextTheme.button.color,
                     ),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
-                    color: Theme.of(context).primaryColor,
-                    textColor: Theme.of(context).primaryTextTheme.button.color,
                   ),
-                FlatButton(
-                  child: Text(
-                      '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
-                  onPressed: _switchAuthMode,
-                  padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  textColor: Theme.of(context).primaryColor,
+                Center(
+                  child: FlatButton(
+                    child: Text(
+                        '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
+                    onPressed: _switchAuthMode,
+                    padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textColor: Theme.of(context).primaryColor,
+                  ),
                 ),
               ],
             ),

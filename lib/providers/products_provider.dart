@@ -4,13 +4,20 @@ import 'package:max_cours_shop_app/model/product_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:max_cours_shop_app/providers/auth_provider.dart';
+
 class ProductsProvider with ChangeNotifier {
+  
   List<ProductModel> _items = [];
   List<ProductModel> get items => [..._items];
 
-  final String token;
-  final String userId;
-  ProductsProvider(this.token,this._items,this.userId);
+   String token;
+   String userId;
+  
+  void update(AuthProvider auth){
+    token =  auth.token;
+    userId=auth.userId;
+  }
 
   List<ProductModel> get favoriteItem =>
       [..._items].where((element) => element.isFavorite).toList();

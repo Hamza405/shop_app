@@ -16,9 +16,9 @@ class EditProductScreen extends StatefulWidget {
 class _EditProductScreenState extends State<EditProductScreen> {
   final _priceFocusNode = FocusNode();
   final _descritpionFocusNode = FocusNode();
-  final _imageUrlFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  
   bool _isEdit=false;
   File _imageFile;
   void _pickedImage(File image) {
@@ -87,17 +87,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
         .child('products_images')
         .child(DateTime.now().toIso8601String() + '.jpg');
     await ref.putFile(_imageFile);
-    final imageUrl = await ref.getDownloadURL();
-    }
-    
-    _editproduct = ProductModel(
+     final imageUrl = await ref.getDownloadURL();
+     _editproduct = ProductModel(
         id: _editproduct.id,
         isFavorite: _editproduct.isFavorite,
         title: _editproduct.description,
         description: _editproduct.description,
         price: _editproduct.price,
-        imageUrl: _editproduct.imageUrl);
+        imageUrl: imageUrl);
         print(_editproduct.imageUrl);
+    }
+    
+    
     if (_editproduct.id != null) {
       try {
         await Provider.of<ProductsProvider>(context, listen: false)

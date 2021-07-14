@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:max_cours_shop_app/providers/cart_provider.dart';
-import 'package:max_cours_shop_app/providers/order_provider.dart';
 import 'package:max_cours_shop_app/providers/products_provider.dart';
 import 'package:max_cours_shop_app/widgets/app_drawer.dart';
 import 'package:max_cours_shop_app/widgets/badge.dart';
-import 'package:max_cours_shop_app/widgets/grid_view.dart';
+import 'package:max_cours_shop_app/widgets/products_list.dart';
+import 'package:max_cours_shop_app/widgets/overviewheadr.dart';
 import 'package:provider/provider.dart';
 
 import 'cart_screen.dart';
@@ -58,9 +58,11 @@ class _OverviewScreenState extends State<OverviewScreen> {
   // }
   @override
   Widget build(BuildContext context) {
+    final size =MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text('My Shop'),
+        elevation: 0,
         actions: <Widget>[
           PopupMenuButton(
             onSelected: (FilterOption selected) {
@@ -95,20 +97,26 @@ class _OverviewScreenState extends State<OverviewScreen> {
           )
         ],
       ),
-      body:FutureBuilder(
-        future: Provider.of<ProductsProvider>(context,listen:false).fetchProducts(false),
-        builder: (ctx,dataSnapShot){
-          if(dataSnapShot.connectionState == ConnectionState.waiting){
-            return Center(child:CircularProgressIndicator());
-          }
-          if(dataSnapShot.error !=null){
-            return Center(child:Text('Something wrong!'));
-          }
-          
-          return Consumer<ProductsProvider>(
-          builder: (ctx,productsData,child)=>MyGridView(_showFavorite),
-        );
-        }
+      body:Column(
+        children: [
+          HeaderWithSearchBox(size: size),
+       FutureBuilder(
+              future: Provider.of<ProductsProvider>(context,listen:false).fetchProducts(false),
+              builder: (ctx,dataSnapShot){
+                if(dataSnapShot.connectionState == ConnectionState.waiting){
+                  return Center(child:CircularProgressIndicator());
+                }
+                if(dataSnapShot.error !=null){
+                  return Center(child:Text('Something wrong!'));
+                }
+                
+                return Consumer<ProductsProvider>(
+                builder: (ctx,productsData,child)=>ProductsList(_showFavorite),
+              );
+              }
+            ),
+         
+        ],
       ),
       drawer: AppDrawer(),
     );

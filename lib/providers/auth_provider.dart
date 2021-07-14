@@ -32,7 +32,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> signUp(String email, String password, String userName,
       String phoneNumber) async {
-    return _authenticate(
+    return authenticate(
         email: email,
         password: password,
         urlSegment: 'accounts:signUp',
@@ -41,13 +41,13 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signIn(String email, String password) async {
-    return _authenticate(
+    return authenticate(
         email: email,
         password: password,
         urlSegment: 'accounts:signInWithPassword');
   }
 
-  Future<void> _authenticate(
+  Future<void> authenticate(
       {String email,
       String password,
       String userName,
